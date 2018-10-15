@@ -1,0 +1,18 @@
+{
+  "name": "tgv_max_bot",
+  "version": "1.0.0",
+  "description": "Check availability about TGV max train",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sylvain Pace",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "dotenv": "^6.1.0",
+    "nodemailer": "^4.6.8",
+    "request": "^2.88.0"
+  }
+}
