@@ -31,8 +31,7 @@ request("https://simulateur.tgvmax.fr/VSC/", (error, response, html) => {
                 Referer: "https://simulateur.tgvmax.fr/VSC/",
                 Origin: "https://simulateur.tgvmax.fr",
                 "Content-Type": "application/json",
-                ValidityToken: hiddenToken,
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
+                ValidityToken: hiddenToken
             },
             json: true
         };
