@@ -16,9 +16,12 @@ const formatedDepartureTime = new Date(departureTime)
 const formatedArrivalTime = new Date(arrivalTime)
 
 function formateDate(d){
- const dateFormatOptions = { weekday: 'short', month: 'short', day: 'numeric', hour:"numeric" };
+    if (typeof d === 'string'){
+        d= new Date(d);
+    } 
 
-return(new Intl.DateTimeFormat('en-US',dateFormatOptions).format(d));
+    const dateFormatOptions = { weekday: 'short', month: 'short', day: 'numeric', hour:"numeric", minute:"numeric"  };
+    return(new Intl.DateTimeFormat('en-US',dateFormatOptions).format(d));
 }
 const constraint = `${departure.substring(0,3)} to ${arrival.substring(0,3)} at ${formateDate(formatedDepartureTime)} until ${formateDate(formatedArrivalTime)} `
 console.log(`${constraint}\n`)
@@ -47,8 +50,6 @@ request("https://simulateur.tgvmax.fr/VSC/", (error, response, html) => {
                 const avaialbleTrains = body2.filter(t => t.availableSeatsCount > 0);
                 if (avaialbleTrains.length > 0) {
                     console.log("Founded");
-                    avaialbleTrains.map(console.log);
-                    // Generate test SMTP service account from ethereal.email
                     // Only needed if you don't have a real mail account for testing
                     nodemailer.createTestAccount((err, account) => {
                         // create reusable transporter object using the default SMTP transport
@@ -69,7 +70,7 @@ request("https://simulateur.tgvmax.fr/VSC/", (error, response, html) => {
                                 pass: pass // generated ethereal password
                             }
                         });
-                        const traintText = avaialbleTrains.reduce((acc, train) => `${acc}\n\n Train:${train.train} at ${train.departureDateTime} availableSeatsCount:${train.availableSeatsCount}`, '')
+                        const traintText = avaialbleTrains.reduce((acc, train) => `${acc}\n\n Train:${train.train} at ${formateDate(train.departureDateTime)} /w ${train.availableSeatsCount} seats`, '')
                         const text = `We have found trains 🎉\n ${traintText}`
                         // setup email data with unicode symbols
                         let mailOptions = {
