@@ -90,10 +90,7 @@ request("https://simulateur.tgvmax.fr/VSC/", (error, response, html) => {
 
             } else {
                 console.error(`Status: ${response2.statusCode}`);
-                console.error(body2);
-                console.error(error2);
                 console.error(response2.statusMessage);
-                console.error(response2);
             }
         }
 
