@@ -16,8 +16,7 @@ const formatedDepartureTime = new Date(departureTime)
 const formatedArrivalTime = new Date(arrivalTime)
 
 const constraint = `${departure} to ${arrival} at ${formatedDepartureTime.toString()} until ${formatedArrivalTime.toString()} `
-console.log(`${constraint}\n\n\n`)
-
+console.log(`${constraint}\n`)
 
 request("https://simulateur.tgvmax.fr/VSC/", (error, response, html) => {
     if (!error && response.statusCode == 200) {
@@ -25,7 +24,7 @@ request("https://simulateur.tgvmax.fr/VSC/", (error, response, html) => {
         const hiddenToken = $("#hiddenToken").val();
         console.log(`hiddenToken=${hiddenToken}`);
         const options = {
-            url: `https://sncf-simulateur-api-prod.azurewebsites.net/api/RailAvailability/Search/${departure}/${arrival}/${departureTime}/${arrivalTime}`,
+            url: encodeURI(`https://sncf-simulateur-api-prod.azurewebsites.net/api/RailAvailability/Search/${departure}/${arrival}/${departureTime}/${arrivalTime}`),
             headers: {
                 Accept: "application/json, text/plain, */*",
                 Referer: "https://simulateur.tgvmax.fr/VSC/",
@@ -39,7 +38,6 @@ request("https://simulateur.tgvmax.fr/VSC/", (error, response, html) => {
         function callback(error2, response2, body2) {
             if (!error2 && response2.statusCode == 200) {
                 const nbTrains = body2.length;
-                console.log(body2)
                 const avaialbleTrains = body2.filter(t => t.availableSeatsCount > 0);
                 if (avaialbleTrains.length > 0) {
                     console.log("alleluja");
@@ -89,6 +87,7 @@ request("https://simulateur.tgvmax.fr/VSC/", (error, response, html) => {
                 }
 
             } else {
+                console.log(response2.request.path)
                 console.error(`Status: ${response2.statusCode}`);
                 console.error(response2.statusMessage);
             }
