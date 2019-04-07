@@ -15,13 +15,19 @@ const arrival = process.env.ARRIVAL;
 const formatedDepartureTime = new Date(departureTime)
 const formatedArrivalTime = new Date(arrivalTime)
 
-function formateDate(d){
-    if (typeof d === 'string'){
-        d= new Date(d);
-    } 
+function formateDate(d) {
+    if (typeof d === 'string') {
+        d = new Date(d);
+    }
 
-    const dateFormatOptions = { weekday: 'short', month: 'short', day: 'numeric', hour:"numeric", minute:"numeric"  };
-    return(new Intl.DateTimeFormat('en-US',dateFormatOptions).format(d));
+    const dateFormatOptions = {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        hour: "numeric",
+        minute: "numeric"
+    };
+    return (new Intl.DateTimeFormat('en-US', dateFormatOptions).format(d));
 }
 const constraint = `${departure.substring(0,3)} to ${arrival.substring(0,3)} at ${formateDate(formatedDepartureTime)} until ${formateDate(formatedArrivalTime)} `
 console.log(`${constraint}\n`)
