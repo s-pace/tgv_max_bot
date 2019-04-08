@@ -16,6 +16,10 @@ const formatedDepartureTime = new Date(departureTime)
 const formatedArrivalTime = new Date(arrivalTime)
 
 function formateDate(d) {
+    if (!d) {
+        console.error("date undefinned")
+    }
+
     if (typeof d === 'string') {
         d = new Date(d);
     }
@@ -53,6 +57,7 @@ request("https://simulateur.tgvmax.fr/VSC/", (error, response, html) => {
         function callback(error2, response2, body2) {
             if (!error2 && response2.statusCode == 200) {
                 const nbTrains = body2.length;
+                for (var train in body2) console.log(`Train starting on ${formateDate(body2[train].departureDateTime)} checked`)
                 const avaialbleTrains = body2.filter(t => t.availableSeatsCount > 0);
                 if (avaialbleTrains.length > 0) {
                     console.log("Founded");
