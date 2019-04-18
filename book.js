@@ -8,6 +8,24 @@ require("dotenv").config();
 const email = process.env.TRAINLINE_EMAIL;
 const password = process.env.TRAINLINE_PASSWORD;
 
+const departureTime = process.env.DEPARTURE_TIME;
+const arrivalTime = process.env.ARRIVAL_TIME;
+const departure = process.env.DEPARTURE;
+const arrival = process.env.ARRIVAL;
+
+stationsId = {
+    "PARIS (intramuros)": 4718,
+    "LYON (gares intramuros)": 4916
+}
+toStationId = station => stationsId[station]
+const cardId = process.env.CARD_ID || 1833434
+const arrivalStationId = toStationId(arrival)
+const departureStationId = toStationId(departure)
+const passengerId = process.env.PASSENGER_ID || 34135937
+
+console.log(cardId, arrivalStationId, departureStationId, passengerId)
+
+
 console.info(chalk.cyan("Looking a train for " +
     email
 ))
@@ -115,7 +133,7 @@ const main = async () => {
             bm_sv,
         }, null, 4)))
 
-        const search = await buildRequest("https://www.trainline.fr/api/v5_1/search", `{\"search\":{\"departure_date\":\"2019-04-25T13:00:00UTC\",\"arrival_date\":\"2019-04-25T18:20:00UTC\",\"systems\":[\"sncf\"],\"departure_station_id\":\"4916\",\"arrival_station_id\":\"4718\",\"passenger_ids\":[\"34135937\"],\"card_ids\":[\"1833434\",\"12669735\"]}}`, {
+        const search = await buildRequest("https://www.trainline.fr/api/v5_1/search", `{\"search\":{\"departure_date\":\"${departureTime}\",\"arrival_date\":\"${arrivalTime}\",\"systems\":[\"sncf\"],\"departure_station_id\":\"${departureStationId}\",\"arrival_station_id\":\"${arrivalStationId}\",\"passenger_ids\":[\"${passengerId}\"],\"card_ids\":[\"${cardId}\"]}}`, {
             ak_bmsc,
             bm_sv
         }, token)
