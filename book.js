@@ -14,8 +14,8 @@ const departure = process.env.DEPARTURE;
 const arrival = process.env.ARRIVAL;
 
 stationsId = {
-    "PARIS (intramuros)": 4718,
-    "LYON (gares intramuros)": 4916
+    "PARIS (intramuros)": 4916,
+    "LYON (gares intramuros)": 4718
 }
 toStationId = station => stationsId[station]
 const cardId = process.env.CARD_ID || 1833434
@@ -139,69 +139,74 @@ const main = async () => {
         const searchJson = await search.json();
 
         const trips = searchJson.trips
-        const freeFolder = searchJson.folders.filter(f => f.cents == 0)
+        const freeFolder = searchJson.folders.filter(f => f.cents == 0 && f.is_sellable)
+        if (freeFolder.length > 0) {
+            const folderToBook = freeFolder[0]
+            const tripToBook = trips.filter(t => t.id == folderToBook.trip_ids[0])[0]
+            console.info(chalk.green("tripToBook"))
+            console.info(chalk.green(folderToBook.search_id))
+            console.info(chalk.green(folderToBook.id))
+            console.info(chalk.green(tripToBook.segment_ids[0]))
 
-        const folderToBook = freeFolder[0]
-        const tripToBook = trips.filter(t => t.id == folderToBook.trip_ids[0])[0]
+            console.info(chalk.green(JSON.stringify(tripToBook, null, 4)))
 
-        console.info(chalk.green("tripToBook"))
-        console.info(chalk.green(folderToBook.search_id))
-        console.info(chalk.green(folderToBook.id))
-        console.info(chalk.green(tripToBook.segment_ids[0]))
+            console.info()
 
-        console.info(chalk.green(JSON.stringify(tripToBook, null, 4)))
+            const bookCookie = {
+                ak_bmsc,
+                eu_business_user: false,
+                eu_voucher_user: false,
+                mobile: "no",
+                bm_sv
+            }
 
-        console.info()
+            const book = await buildRequest("https://www.trainline.fr/api/v5_1/book", `{\"book\":{\"search_id\":\"${folderToBook.search_id}\",\"outward_folder_id\":\"${folderToBook.id}\",\"options\":{\"${tripToBook.segment_ids[0]}\":{\"comfort_class\":\"pao.default\",\"seat\":\"aisle\"}}}}`, bookCookie, token);
+            console.info(chalk.bgBlue(`Book responsed with a status: ${book.status}`))
 
-        const bookCookie = {
-            ak_bmsc,
-            eu_business_user: false,
-            eu_voucher_user: false,
-            mobile: "no",
-            bm_sv
-        }
+            if (book.status === 201) {
 
-        const book = await buildRequest("https://www.trainline.fr/api/v5_1/book", `{\"book\":{\"search_id\":\"${folderToBook.search_id}\",\"outward_folder_id\":\"${folderToBook.id}\",\"options\":{\"${tripToBook.segment_ids[0]}\":{\"comfort_class\":\"pao.default\",\"seat\":\"aisle\"}}}}`, bookCookie, token);
-        console.info(chalk.bgBlue(`Book responsed with a status: ${book.status}`))
-
-        if (book.status === 201) {
-
-            const host = process.env.SMTP_SERVER;
-            const port = process.env.SMTP_PORT;
-            const user = process.env.SMTP_USER;
-            const pass = process.env.SMTP_PASSWORD;
-            const receiver = process.env.RECEIVER;
-            const sender = process.env.SENDER;
+                const host = process.env.SMTP_SERVER;
+                const port = process.env.SMTP_PORT;
+                const user = process.env.SMTP_USER;
+                const pass = process.env.SMTP_PASSWORD;
+                const receiver = process.env.RECEIVER;
+                const sender = process.env.SENDER;
 
 
-            // create reusable transporter object using the default SMTP transport
-            let transporter = nodemailer.createTransport({
-                host: host,
-                port: port,
-                secure: true, // true for 465, false for other ports
-                auth: {
-                    user: user, // generated ethereal user
-                    pass: pass // generated ethereal password
-                }
-            });
+                // create reusable transporter object using the default SMTP transport
+                let transporter = nodemailer.createTransport({
+                    host: host,
+                    port: port,
+                    secure: true, // true for 465, false for other ports
+                    auth: {
+                        user: user, // generated ethereal user
+                        pass: pass // generated ethereal password
+                    }
+                });
 
-            const text = `We have found trains 🎉\n ${folderToBook.id}`
+                const text = `We have found trains 🎉\n ${folderToBook.id}`
 
-            // setup email data with unicode symbols
-            let mailOptions = {
-                from: `"TGV max robot 🤖" <${sender}>`, // sender address
-                to: receiver, // list of receivers
-                subject: `Train found departure at ${formateDate(tripToBook.arrival_date)}`, // Subject line
-                text: text, // plain text body
-                html: text.split('\n').join('\n<br>\n') // html body
-            };
-            // send mail with defined transport object
-            let info = await transporter.sendMail(mailOptions);
-            console.info(chalk.magenta(`Message sent: ${info.messageId}`));
+                // setup email data with unicode symbols
+                let mailOptions = {
+                    from: `"TGV max robot 🤖" <${sender}>`, // sender address
+                    to: receiver, // list of receivers
+                    subject: `Train found departure at ${formateDate(tripToBook.arrival_date)}`, // Subject line
+                    text: text, // plain text body
+                    html: text.split('\n').join('\n<br>\n') // html body
+                };
+                // send mail with defined transport object
+                let info = await transporter.sendMail(mailOptions);
+                console.info(chalk.magenta(`Message sent: ${info.messageId}`));
+
+            } else {
+                console.info(chalk.red(`Coud not book, status: ${book.status}`))
+            }
 
         } else {
-            console.info(chalk.red(`Coud not book, status: ${book.status}`))
+            console.info(chalk.red("No train found"))
         }
+
+
 
 
     } catch (error) {
