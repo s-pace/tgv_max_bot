@@ -84,18 +84,22 @@ buildRequest = (url, body, cookie, token, extraHeaders) => {
             })
         })
     }
-    console.log({url, opts})
+    // console.log({
+    //     url,
+    //     opts
+    // })
     return fetch(url, opts)
 }
 
-const getToken = async url => {
+const main = async () => {
     try {
+        const signInUrl = "https://www.trainline.fr/api/v5_1/account/signin"
         bodyLogin = `{\"id\":\"1\",\"email\":\"${email}\",\"password\":\"${password}\",\"facebook_id\":null,\"facebook_token\":null,\"google_code\":null,\"concur_auth_code\":null,\"concur_new_email\":null,\"concur_migration_type\":null,\"source\":null,\"correlation_key\":null,\"auth_token\":null,\"user_id\":null}`
-        const signInResponse = await buildRequest(url, bodyLogin)
+        const signInResponse = await buildRequest(signInUrl, bodyLogin)
         const ak_bmsc = extractCookieString(signInResponse.headers.get('set-cookie'));
         console.info(chalk.bgBlue(`First signin responsed with a status: ${signInResponse.status}`))
 
-        const resp2ndtoken = await buildRequest(url, bodyLogin, {
+        const resp2ndtoken = await buildRequest(signInUrl, bodyLogin, {
             ak_bmsc
         })
         console.info(chalk.bgBlue(`2nd signin responsed with a status: ${resp2ndtoken.status}`))
@@ -196,4 +200,4 @@ const getToken = async url => {
 
 
 
-getToken("https://www.trainline.fr/api/v5_1/account/signin");
+main();
