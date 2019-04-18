@@ -23,9 +23,6 @@ const arrivalStationId = toStationId(arrival)
 const departureStationId = toStationId(departure)
 const passengerId = process.env.PASSENGER_ID || 34135937
 
-console.log(cardId, arrivalStationId, departureStationId, passengerId)
-
-
 console.info(chalk.cyan("Looking a train for " +
     email
 ))
@@ -148,9 +145,9 @@ const main = async () => {
         const tripToBook = trips.filter(t => t.id == folderToBook.trip_ids[0])[0]
 
         console.info(chalk.green("tripToBook"))
-        console.info(folderToBook.search_id)
-        console.info(folderToBook.id)
-        console.info(tripToBook.segment_ids[0])
+        console.info(chalk.green(folderToBook.search_id))
+        console.info(chalk.green(folderToBook.id))
+        console.info(chalk.green(tripToBook.segment_ids[0]))
 
         console.info(chalk.green(JSON.stringify(tripToBook, null, 4)))
 
@@ -198,11 +195,9 @@ const main = async () => {
                 text: text, // plain text body
                 html: text.split('\n').join('\n<br>\n') // html body
             };
-
             // send mail with defined transport object
             let info = await transporter.sendMail(mailOptions);
-
-            console.log(`Message sent: ${info.messageId}`);
+            console.info(chalk.purple(`Message sent: ${info.messageId}`));
 
         } else {
             console.info(chalk.red(`Coud not book, status: ${book.status}`))
