@@ -197,7 +197,7 @@ const main = async () => {
             };
             // send mail with defined transport object
             let info = await transporter.sendMail(mailOptions);
-            console.info(chalk.purple(`Message sent: ${info.messageId}`));
+            console.info(chalk.magenta(`Message sent: ${info.messageId}`));
 
         } else {
             console.info(chalk.red(`Coud not book, status: ${book.status}`))
