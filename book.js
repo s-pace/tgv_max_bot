@@ -2,12 +2,14 @@ const fetch = require("node-fetch");
 const chalk = require("chalk");
 const nodemailer = require("nodemailer");
 
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
+
 
 require("dotenv").config();
 
 const email = process.env.TRAINLINE_EMAIL;
 const password = process.env.TRAINLINE_PASSWORD;
-
 const departureTime = process.env.DEPARTURE_TIME;
 const arrivalTime = process.env.ARRIVAL_TIME;
 const departure = process.env.DEPARTURE;
@@ -17,6 +19,7 @@ stationsId = {
     "PARIS (intramuros)": 4916,
     "LYON (gares intramuros)": 4718
 }
+
 toStationId = station => stationsId[station]
 const cardId = process.env.CARD_ID || 1833434
 const arrivalStationId = toStationId(arrival)
@@ -27,13 +30,17 @@ console.info(chalk.cyan("Looking a train for " +
     email
 ))
 
-extractCookieString = (r) => r.substring(r.indexOf("=") + 1, r.indexOf(";"))
+extractCookieString = (r) => !r ? null : r.substring(r.indexOf("=") + 1, r.indexOf(";"))
 
 stringifyCookie = c => Object.keys(c).reduce((acc, e) => {
-    if (acc) {
-        acc = acc + "; "
+    if (c[e]) {
+        if (acc) {
+            acc = acc + "; "
+        }
+        return acc + e + "=" + c[e]
+    } else {
+        return acc
     }
-    return acc + e + "=" + c[e]
 }, '')
 formateDate = (d) => {
     if (!d) {
@@ -58,7 +65,9 @@ buildRequest = (url, body, cookie, token, extraHeaders) => {
     const referrer = url.split("/").pop();
     let opts = {
         credentials: 'include',
-        "headers": {
+        headers: {
+            "origin": 'https://www.trainline.fr',
+            "accept-encoding": 'gzip, deflate, br',
             "accept": "application/json, text/javascript, */*; q=0.01",
             "accept-language": "fr-FR,fr;q=0.8",
             "cache-control": "no-cache",
@@ -67,17 +76,17 @@ buildRequest = (url, body, cookie, token, extraHeaders) => {
             "x-ct-client-id": "761c18b4-14ec-44a7-bd33-61100dd7faab",
             "x-ct-locale": "fr",
             "x-ct-timestamp": "1554970536",
-            // "x-ct-version": "1254b1d98ce9b91e3e5b46a3c6e7c159e5990497",
+            "x-ct-version": "1254b1d98ce9b91e3e5b46a3c6e7c159e5990497",
             "x-not-a-bot": "i-am-human",
             "x-requested-with": "XMLHttpRequest",
             "x-user-agent": "CaptainTrain/1554970536(web) (Ember 3.5.1)",
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36"
         },
-        "referrer": `https://www.trainline.fr/${referrer}`,
-        "referrerPolicy": "no-referrer-when-downgrade",
+        referrer: `https://www.trainline.fr/${referrer}`,
+        referrerPolicy: "no-referrer-when-downgrade",
         body,
-        "method": "POST",
-        "mode": "cors"
+        method: "POST",
+        mode: "cors",
     }
     if (cookie) {
         opts = Object.assign(opts, {
@@ -86,6 +95,7 @@ buildRequest = (url, body, cookie, token, extraHeaders) => {
             })
         })
     }
+
     if (extraHeaders) {
         opts = Object.assign(opts, {
             headers: Object.assign(opts.headers, extraHeaders)
@@ -99,27 +109,33 @@ buildRequest = (url, body, cookie, token, extraHeaders) => {
             })
         })
     }
-    // console.log({
-    //     url,
-    //     opts
-    // })
+    // console.info(opts)
     return fetch(url, opts)
+}
+
+const getCurlTOken = async (url, body) => {
+    const referrer = url.split("/").pop();
+
+    const result = await exec(`curl --silent --output /dev/null --cookie-jar - '${url}' -H 'origin: https://www.trainline.fr' -H 'accept-encoding: gzip, deflate, br' -H 'accept-language: fr-FR,fr;q=0.8' -H 'x-ct-version: 1254b1d98ce9b91e3e5b46a3c6e7c159e5990497' -H 'x-ct-locale: fr' -H 'x-requested-with: XMLHttpRequest' -H 'pragma: no-cache' -H 'x-user-agent: CaptainTrain/1554970536(web) (Ember 3.5.1)' -H 'x-not-a-bot: i-am-human' -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36' -H 'content-type: application/json; charset=UTF-8' -H 'accept: application/json, text/javascript, */*; q=0.01' -H 'cache-control: no-cache' -H 'authority: www.trainline.fr' -H 'referer: https://www.trainline.fr/${referrer}' -H 'x-ct-timestamp: 1554970536' --data-binary '${body}' --compressed`);
+    const cookies = result.stdout.split('\t')
+    const ak_bmsc = cookies[cookies.indexOf('ak_bmsc') + 1].replace(/\n/g, '')
+    return ak_bmsc
 }
 
 const main = async () => {
     try {
+
         const signInUrl = "https://www.trainline.fr/api/v5_1/account/signin"
         bodyLogin = `{\"id\":\"1\",\"email\":\"${email}\",\"password\":\"${password}\",\"facebook_id\":null,\"facebook_token\":null,\"google_code\":null,\"concur_auth_code\":null,\"concur_new_email\":null,\"concur_migration_type\":null,\"source\":null,\"correlation_key\":null,\"auth_token\":null,\"user_id\":null}`
-        const signInResponse = await buildRequest(signInUrl, bodyLogin)
-        console.info(chalk.bgBlue(`First signin responsed with a status: ${signInResponse.status}`))
-        const ak_bmsc = extractCookieString(signInResponse.headers.get('set-cookie'));
+
+        const ak_bmsc = await getCurlTOken(signInUrl, bodyLogin)
 
         const resp2ndtoken = await buildRequest(signInUrl, bodyLogin, {
             ak_bmsc
         })
         console.info(chalk.bgBlue(`2nd signin responsed with a status: ${resp2ndtoken.status}`))
 
-        const bm_sv = extractCookieString(resp2ndtoken.headers.get('set-cookie'));
+        const bm_sv = extractCookieString(resp2ndtoken.headers['set-cookie']);
 
         const jsonSignin = await resp2ndtoken.json();
         const token = jsonSignin.meta.token
@@ -146,11 +162,8 @@ const main = async () => {
             console.info(chalk.green("tripToBook"))
             console.info(chalk.green(folderToBook.search_id))
             console.info(chalk.green(folderToBook.id))
-            console.info(chalk.green(tripToBook.segment_ids[0]))
 
             console.info(chalk.green(JSON.stringify(tripToBook, null, 4)))
-
-            console.info()
 
             const bookCookie = {
                 ak_bmsc,
@@ -171,7 +184,6 @@ const main = async () => {
                 const pass = process.env.SMTP_PASSWORD;
                 const receiver = process.env.RECEIVER;
                 const sender = process.env.SENDER;
-
 
                 // create reusable transporter object using the default SMTP transport
                 let transporter = nodemailer.createTransport({
@@ -206,16 +218,9 @@ const main = async () => {
             console.info(chalk.red("No train found"))
         }
 
-
-
-
     } catch (error) {
         console.error(error);
     }
 };
-
-
-
-
 
 main();
