@@ -111,8 +111,8 @@ const main = async () => {
         const signInUrl = "https://www.trainline.fr/api/v5_1/account/signin"
         bodyLogin = `{\"id\":\"1\",\"email\":\"${email}\",\"password\":\"${password}\",\"facebook_id\":null,\"facebook_token\":null,\"google_code\":null,\"concur_auth_code\":null,\"concur_new_email\":null,\"concur_migration_type\":null,\"source\":null,\"correlation_key\":null,\"auth_token\":null,\"user_id\":null}`
         const signInResponse = await buildRequest(signInUrl, bodyLogin)
-        const ak_bmsc = extractCookieString(signInResponse.headers.get('set-cookie'));
         console.info(chalk.bgBlue(`First signin responsed with a status: ${signInResponse.status}`))
+        const ak_bmsc = extractCookieString(signInResponse.headers.get('set-cookie'));
 
         const resp2ndtoken = await buildRequest(signInUrl, bodyLogin, {
             ak_bmsc
