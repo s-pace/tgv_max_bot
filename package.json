@@ -2,9 +2,9 @@
   "name": "tgv_max_bot",
   "version": "1.0.0",
   "description": "Check availability about TGV max train",
-  "main": "index.js",
+  "main": "book.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node book.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Sylvain Pace",
