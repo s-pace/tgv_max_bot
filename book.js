@@ -17,6 +17,9 @@ const arrival = process.env.ARRIVAL;
 
 stationsId = {
     "PARIS (intramuros)": 4916,
+    "Vannes": 5663,
+    "Marseille": 4790,
+    "Toulouse": 5306,
     "LYON (gares intramuros)": 4718
 }
 
