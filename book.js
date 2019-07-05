@@ -16,11 +16,12 @@ const departure = process.env.DEPARTURE;
 const arrival = process.env.ARRIVAL;
 
 stationsId = {
-    "PARIS (intramuros)": 4916,
-    "Vannes": 5663,
+    "Grenoble":3358,
+    "LYON (gares intramuros)": 4718,
     "Marseille": 4790,
+    "PARIS (intramuros)": 4916,
     "Toulouse": 5306,
-    "LYON (gares intramuros)": 4718
+    "Vannes": 5663
 }
 
 toStationId = station => stationsId[station]
@@ -161,6 +162,8 @@ const main = async () => {
         const searchJson = await search.json();
 
         const trips = searchJson.trips
+        console.info(chalk.green(JSON.stringify(searchJson.trips)))
+
         const freeFolder = searchJson.folders.filter(f => f.cents == 0 && f.is_sellable)
         if (freeFolder.length > 0) {
             const folderToBook = freeFolder[0]
