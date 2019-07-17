@@ -158,6 +158,7 @@ const main = async () => {
             bm_sv
         }, token)
         console.info(chalk.bgBlue(`Search responsed with a status: ${search.status}`))
+        console.info(chalk.bgBlue(`statusText: ${search.statusText}`))
 
         const searchJson = await search.json();
 
