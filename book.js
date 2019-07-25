@@ -19,7 +19,7 @@ stationsId = {
     "Grenoble":3358,
     "LYON (gares intramuros)": 4718,
     "Marseille": 4790,
-    "PARIS (intramuros)": 4916,
+    "PARIS (gares intramuros)": 4916,
     "Toulouse": 5306,
     "Le Mans": 172,
     "Vannes": 5663
