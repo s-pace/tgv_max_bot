@@ -21,6 +21,7 @@ stationsId = {
     "Marseille": 4790,
     "PARIS (intramuros)": 4916,
     "Toulouse": 5306,
+    "Le Mans": 172,
     "Vannes": 5663
 }
 
