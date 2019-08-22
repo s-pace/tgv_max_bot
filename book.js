@@ -16,7 +16,7 @@ const departure = process.env.DEPARTURE;
 const arrival = process.env.ARRIVAL;
 
 stationsId = {
-    "Grenoble":3358,
+    "Grenoble": 3358,
     "LYON (gares intramuros)": 4718,
     "Marseille": 4790,
     "PARIS (gares intramuros)": 4916,
@@ -223,6 +223,9 @@ const main = async () => {
 
             } else {
                 console.info(chalk.red(`Coud not book, status: ${book.status}`))
+                const bookJson = await book.json();
+                console.info(chalk.red(`Coud not book, status: ${JSON.stringify(bookJson)}`))
+
             }
 
         } else {
