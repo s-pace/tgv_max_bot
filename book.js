@@ -16,12 +16,15 @@ const departure = process.env.DEPARTURE;
 const arrival = process.env.ARRIVAL;
 
 stationsId = {
-    "Grenoble":3358,
+    "Grenoble": 3358,
     "LYON (gares intramuros)": 4718,
+    "Lyon": 4718,
     "Marseille": 4790,
     "PARIS (gares intramuros)": 4916,
+    "Paris": 4916,
     "Toulouse": 5306,
     "Le Mans": 172,
+    "Lemans": 172,
     "Vannes": 5663
 }
 
@@ -85,7 +88,7 @@ buildRequest = (url, body, cookie, token, extraHeaders) => {
             "x-not-a-bot": "i-am-human",
             "x-requested-with": "XMLHttpRequest",
             "x-user-agent": "CaptainTrain/1554970536(web) (Ember 3.5.1)",
-            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36"
+            "user-agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Mobile Safari/537.36"
         },
         referrer: `https://www.trainline.fr/${referrer}`,
         referrerPolicy: "no-referrer-when-downgrade",
@@ -121,7 +124,7 @@ buildRequest = (url, body, cookie, token, extraHeaders) => {
 const getCurlTOken = async (url, body) => {
     try {
         const referrer = url.split("/").pop();
-        const result = await exec(`curl --silent --output /dev/null --cookie-jar - '${url}' -H 'origin: https://www.trainline.fr' -H 'accept-encoding: gzip, deflate, br' -H 'accept-language: fr-FR,fr;q=0.8' -H 'x-ct-version: 1254b1d98ce9b91e3e5b46a3c6e7c159e5990497' -H 'x-ct-locale: fr' -H 'x-requested-with: XMLHttpRequest' -H 'pragma: no-cache' -H 'x-user-agent: CaptainTrain/1554970536(web) (Ember 3.5.1)' -H 'x-not-a-bot: i-am-human' -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36' -H 'content-type: application/json; charset=UTF-8' -H 'accept: application/json, text/javascript, */*; q=0.01' -H 'cache-control: no-cache' -H 'authority: www.trainline.fr' -H 'referer: https://www.trainline.fr/${referrer}' -H 'x-ct-timestamp: 1554970536' --data-binary '${body}' --compressed`);
+        const result = await exec(`curl --silent --output /dev/null --cookie-jar - '${url}' -H 'origin: https://www.trainline.fr' -H 'accept-encoding: gzip, deflate, br' -H 'accept-language: fr-FR,fr;q=0.8' -H 'x-ct-version: 1254b1d98ce9b91e3e5b46a3c6e7c159e5990497' -H 'x-ct-locale: fr' -H 'x-requested-with: XMLHttpRequest' -H 'pragma: no-cache' -H 'x-user-agent: CaptainTrain/1554970536(web) (Ember 3.5.1)' -H 'x-not-a-bot: i-am-human' -H 'user-agent: Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Mobile Safari/537.36' -H 'content-type: application/json; charset=UTF-8' -H 'accept: application/json, text/javascript, */*; q=0.01' -H 'cache-control: no-cache' -H 'authority: www.trainline.fr' -H 'referer: https://www.trainline.fr/${referrer}' -H 'x-ct-timestamp: 1554970536' --data-binary '${body}' --compressed`);
         const cookies = result.stdout.split('\t')
         const ak_bmsc = cookies[cookies.indexOf('ak_bmsc') + 1].replace(/\n/g, '')
         return ak_bmsc
@@ -223,6 +226,9 @@ const main = async () => {
 
             } else {
                 console.info(chalk.red(`Coud not book, status: ${book.status}`))
+                const bookJson = await book.json();
+                console.info(chalk.red(`Coud not book, status: ${JSON.stringify(bookJson)}`))
+
             }
 
         } else {
