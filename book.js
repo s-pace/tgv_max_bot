@@ -228,7 +228,6 @@ const main = async () => {
                 console.info(chalk.red(`Coud not book, status: ${book.status}`))
                 const bookJson = await book.json();
                 console.info(chalk.red(`Coud not book, status: ${JSON.stringify(bookJson)}`))
-
             }
 
         } else {
