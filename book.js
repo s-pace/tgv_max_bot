@@ -25,6 +25,7 @@ stationsId = {
     "toulouse": 5306,
     "le mans": 172,
     "avignon tgv ": 485,
+    "avignon": 485,
     "vannes": 5663
 }
 
