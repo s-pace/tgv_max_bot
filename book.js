@@ -136,6 +136,10 @@ const getCurlTOken = async (url, body) => {
   }
 };
 
+formateTrip = t =>
+  `${t.departure_date} =>  ${t.arrival_date} ${t.cents / 100}.${t.cents %
+    100} ${t.currency}`;
+
 const main = async () => {
   try {
     const signInUrl = "https://www.trainline.fr/api/v5_1/account/signin";
@@ -186,7 +190,11 @@ const main = async () => {
     const searchJson = await search.json();
 
     const trips = searchJson.trips;
-    console.info(chalk.green(JSON.stringify(searchJson.trips)));
+
+    console.info(
+      chalk.green(`${searchJson.trips.length} available from the search`)
+    );
+    searchJson.trips.map(t => console.log(formateTrip(t)));
 
     const freeFolder = searchJson.folders.filter(
       f => f.cents == 0 && f.is_sellable
@@ -198,7 +206,7 @@ const main = async () => {
       console.info(chalk.green(folderToBook.search_id));
       console.info(chalk.green(folderToBook.id));
 
-      console.info(chalk.green(JSON.stringify(tripToBook, null, 4)));
+      console.info(chalk.green(formateTrip(tripToBook)));
 
       const bookCookie = {
         ak_bmsc,
