@@ -10,7 +10,6 @@ require("dotenv").config();
 const email = process.env.TRAINLINE_EMAIL;
 const password = process.env.TRAINLINE_PASSWORD;
 const departureTime = process.env.DEPARTURE_TIME;
-const arrivalTime = process.env.ARRIVAL_TIME;
 const departure = process.env.DEPARTURE;
 const arrival = process.env.ARRIVAL;
 
@@ -138,7 +137,9 @@ const getCurlTOken = async (url, body) => {
 
 formateTrip = t =>
   `${t.departure_date} =>  ${t.arrival_date} ${t.cents / 100}.${t.cents %
-    100} ${t.currency}`;
+    100} ${t.currency} ${
+    !t.short_unsellable_reason ? "" : t.short_unsellable_reason
+  }`;
 
 const main = async () => {
   try {
@@ -175,7 +176,7 @@ const main = async () => {
 
     const search = await buildRequest(
       "https://www.trainline.fr/api/v5_1/search",
-      `{\"search\":{\"departure_date\":\"${departureTime}\",\"arrival_date\":\"${arrivalTime}\",\"systems\":[\"sncf\"],\"departure_station_id\":\"${departureStationId}\",\"arrival_station_id\":\"${arrivalStationId}\",\"passenger_ids\":[\"${passengerId}\"],\"card_ids\":[\"${cardId}\"]}}`,
+      `{\"search\":{\"departure_date\":\"${departureTime}\",\"systems\":[\"sncf\"],\"departure_station_id\":\"${departureStationId}\",\"arrival_station_id\":\"${arrivalStationId}\",\"passenger_ids\":[\"${passengerId}\"],\"card_ids\":[\"${cardId}\"]}}`,
       {
         ak_bmsc,
         bm_sv
@@ -187,16 +188,16 @@ const main = async () => {
     );
     console.info(chalk.bgBlue(`statusText: ${search.statusText}`));
 
-    const searchJson = await search.json();
+    const searchBody = await search.json();
 
-    const trips = searchJson.trips;
+    const trips = searchBody.trips;
 
     console.info(
-      chalk.green(`${searchJson.trips.length} available from the search`)
+      chalk.green(`${searchBody.trips.length} available from the search`)
     );
-    searchJson.trips.map(t => console.log(formateTrip(t)));
+    searchBody.trips.map(t => console.log(formateTrip(t)));
 
-    const freeFolder = searchJson.folders.filter(
+    const freeFolder = searchBody.folders.filter(
       f => f.cents == 0 && f.is_sellable
     );
     if (freeFolder.length > 0) {
@@ -226,49 +227,101 @@ const main = async () => {
         bookCookie,
         token
       );
+
       console.info(
         chalk.bgBlue(`Book responsed with a status: ${book.status}`)
       );
 
-      if (book.status === 201) {
-        const host = process.env.SMTP_SERVER;
-        const port = process.env.SMTP_PORT;
-        const user = process.env.SMTP_USER;
-        const pass = process.env.SMTP_PASSWORD;
-        const receiver = process.env.RECEIVER;
-        const sender = process.env.SENDER;
+      if (book.ok) {
+        bookBody = await book.json();
 
-        // create reusable transporter object using the default SMTP transport
-        let transporter = nodemailer.createTransport({
-          host: host,
-          port: port,
-          secure: true, // true for 465, false for other ports
-          auth: {
-            user: user, // generated ethereal user
-            pass: pass // generated ethereal password
+        pnrID = bookBody.pnrs[0].id;
+        const payment = await buildRequest(
+          "https://www.trainline.fr/api/v5_1/payments",
+          `{\"payment\":{\"mean\":\"free\",\"cents\":0,\"currency\":\"EUR\",\"holder\":null,\"number\":null,\"expiration_month\":null,\"expiration_year\":null,\"cvv_code\":null,\"nonce\":null,\"paypal_email\":null,\"paypal_first_name\":null,\"paypal_last_name\":null,\"paypal_country\":null,\"device_data\":null,\"status\":null,\"verification_form\":null,\"verification_url\":null,\"can_save_payment_card\":false,\"is_new_customer\":false,\"digitink_value\":null,\"card_form_session\":null,\"pnr_ids\":[\"${pnrID}\"],\"order_id\":null,\"payment_card_id\":null,\"wants_all_marketing\":false}}`,
+          bookCookie,
+          token
+        );
+
+        console.info(
+          chalk.bgBlue(`Payment responsed with a status: ${payment.status}`)
+        );
+        if (payment.ok) {
+          const paymentBody = await payment.json();
+          const paymentID = paymentBody.payment.id;
+
+          const confirmation = await buildRequest(
+            `https://www.trainline.fr/api/v5_1/payments/${paymentID}/confirm`,
+            `{\"payment\":{\"mean\":\"free\",\"cents\":0,\"currency\":\"EUR\",\"holder\":null,\"number\":null,\"expiration_month\":null,\"expiration_year\":null,\"cvv_code\":null,\"nonce\":null,\"paypal_email\":null,\"paypal_first_name\":null,\"paypal_last_name\":null,\"paypal_country\":null,\"device_data\":null,\"status\":null,\"verification_form\":null,\"verification_url\":null,\"can_save_payment_card\":false,\"is_new_customer\":false,\"digitink_value\":null,\"card_form_session\":null,\"pnr_ids\":[\"${pnrID}\"],\"order_id\":null,\"payment_card_id\":null,\"wants_all_marketing\":false}}`,
+            bookCookie,
+            token
+          );
+          console.info(
+            chalk.bgBlue(
+              `Confirmation responsed with a status: ${confirmation.status}`
+            )
+          );
+          if (confirmation.ok) {
+            const host = process.env.SMTP_SERVER;
+            const port = process.env.SMTP_PORT;
+            const user = process.env.SMTP_USER;
+            const pass = process.env.SMTP_PASSWORD;
+            const receiver = process.env.RECEIVER;
+            const sender = process.env.SENDER;
+
+            // create reusable transporter object using the default SMTP transport
+            let transporter = nodemailer.createTransport({
+              host: host,
+              port: port,
+              secure: true, // true for 465, false for other ports
+              auth: {
+                user: user, // generated ethereal user
+                pass: pass // generated ethereal password
+              }
+            });
+
+            const text = `We have booked a train 🎉\n, you should open the trainline application or go to https://www.trainline.fr/ to see it confirmed`;
+
+            // setup email data with unicode symbols
+            let mailOptions = {
+              from: `"TGV max robot 🤖" <${sender}>`, // sender address
+              to: receiver, // list of receivers
+              subject: `Train booked ${formateDate(
+                tripToBook.departure_date
+              )} >  ${formateDate(
+                tripToBook.arrival_date
+              )} ${departure} > ${arrival} ✅`, // Subject line
+              text: text, // plain text body
+              html: text.split("\n").join("\n<br>\n") // html body
+            };
+            // send mail with defined transport object
+            let info = await transporter.sendMail(mailOptions);
+            console.info(chalk.magenta(`Message sent: ${info.messageId}`));
+          } else {
+            console.info(
+              chalk.red(
+                `Coud not proceed the confirmation, status: ${confirmation.status}`
+              )
+            );
+            const confirmationBody = await confirmation.json();
+            console.info(
+              chalk.red(`confirmationBody: ${JSON.stringify(confirmationBody)}`)
+            );
           }
-        });
-
-        const text = `We have found trains 🎉\n ${folderToBook.id}`;
-
-        // setup email data with unicode symbols
-        let mailOptions = {
-          from: `"TGV max robot 🤖" <${sender}>`, // sender address
-          to: receiver, // list of receivers
-          subject: `Train found departure at ${formateDate(
-            tripToBook.arrival_date
-          )}`, // Subject line
-          text: text, // plain text body
-          html: text.split("\n").join("\n<br>\n") // html body
-        };
-        // send mail with defined transport object
-        let info = await transporter.sendMail(mailOptions);
-        console.info(chalk.magenta(`Message sent: ${info.messageId}`));
+        } else {
+          console.info(
+            chalk.red(`Coud not proceed the payment, status: ${payment.status}`)
+          );
+          const paymentBody = await payment.json();
+          console.info(
+            chalk.red(`paymentBody: ${JSON.stringify(paymentBody)}`)
+          );
+        }
       } else {
         console.info(chalk.red(`Coud not book, status: ${book.status}`));
-        const bookJson = await book.json();
+        const bookBody = await book.json();
         console.info(
-          chalk.red(`Coud not book, status: ${JSON.stringify(bookJson)}`)
+          chalk.red(`Coud not book, body: ${JSON.stringify(bookBody)}`)
         );
       }
     } else {
