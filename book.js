@@ -248,15 +248,17 @@ const main = async () => {
           }
         });
 
-        const text = `We have found trains 🎉\n ${folderToBook.id}`;
+        const text = `We have found trains 🎉\n, you should open the trainline application or go to https://www.trainline.fr/ and confirmed your cart`;
 
         // setup email data with unicode symbols
         let mailOptions = {
           from: `"TGV max robot 🤖" <${sender}>`, // sender address
           to: receiver, // list of receivers
-          subject: `Train found departure at ${formateDate(
+          subject: `Train found ${formateDate(
+            tripToBook.departure_date
+          )} >  ${formateDate(
             tripToBook.arrival_date
-          )}`, // Subject line
+          )} ${departure} > ${arrival}`, // Subject line
           text: text, // plain text body
           html: text.split("\n").join("\n<br>\n") // html body
         };
