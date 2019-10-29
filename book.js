@@ -280,17 +280,17 @@ const main = async () => {
               }
             });
 
-            const text = `We have found trains 🎉\n, you should open the trainline application or go to https://www.trainline.fr/ and confirmed your cart`;
+            const text = `We have booked a train 🎉\n, you should open the trainline application or go to https://www.trainline.fr/ to see it confirmed`;
 
             // setup email data with unicode symbols
             let mailOptions = {
               from: `"TGV max robot 🤖" <${sender}>`, // sender address
               to: receiver, // list of receivers
-              subject: `Train found ${formateDate(
+              subject: `Train booked ${formateDate(
                 tripToBook.departure_date
               )} >  ${formateDate(
                 tripToBook.arrival_date
-              )} ${departure} > ${arrival}`, // Subject line
+              )} ${departure} > ${arrival} ✅`, // Subject line
               text: text, // plain text body
               html: text.split("\n").join("\n<br>\n") // html body
             };
