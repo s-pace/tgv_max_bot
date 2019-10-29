@@ -137,7 +137,9 @@ const getCurlTOken = async (url, body) => {
 
 formateTrip = t =>
   `${t.departure_date} =>  ${t.arrival_date} ${t.cents / 100}.${t.cents %
-    100} ${t.currency}`;
+    100} ${t.currency} ${
+    !t.short_unsellable_reason ? "" : t.short_unsellable_reason
+  }`;
 
 const main = async () => {
   try {
