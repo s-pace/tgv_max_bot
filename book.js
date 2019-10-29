@@ -10,7 +10,6 @@ require("dotenv").config();
 const email = process.env.TRAINLINE_EMAIL;
 const password = process.env.TRAINLINE_PASSWORD;
 const departureTime = process.env.DEPARTURE_TIME;
-const arrivalTime = process.env.ARRIVAL_TIME;
 const departure = process.env.DEPARTURE;
 const arrival = process.env.ARRIVAL;
 
@@ -175,7 +174,7 @@ const main = async () => {
 
     const search = await buildRequest(
       "https://www.trainline.fr/api/v5_1/search",
-      `{\"search\":{\"departure_date\":\"${departureTime}\",\"arrival_date\":\"${arrivalTime}\",\"systems\":[\"sncf\"],\"departure_station_id\":\"${departureStationId}\",\"arrival_station_id\":\"${arrivalStationId}\",\"passenger_ids\":[\"${passengerId}\"],\"card_ids\":[\"${cardId}\"]}}`,
+      `{\"search\":{\"departure_date\":\"${departureTime}\",\"systems\":[\"sncf\"],\"departure_station_id\":\"${departureStationId}\",\"arrival_station_id\":\"${arrivalStationId}\",\"passenger_ids\":[\"${passengerId}\"],\"card_ids\":[\"${cardId}\"]}}`,
       {
         ak_bmsc,
         bm_sv
