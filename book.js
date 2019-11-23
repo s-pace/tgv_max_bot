@@ -70,7 +70,7 @@ formateDate = d => {
 buildRequest = (url, body, cookie, token, extraHeaders) => {
   const referrer = url.split("/").pop();
   let opts = {
-    credentials: "include",
+    // credentials: "include",
     headers: {
       origin: "https://www.trainline.fr",
       "accept-encoding": "gzip, deflate, br",
@@ -89,11 +89,11 @@ buildRequest = (url, body, cookie, token, extraHeaders) => {
       "user-agent":
         "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Mobile Safari/537.36"
     },
-    referrer: `https://www.trainline.fr/${referrer}`,
-    referrerPolicy: "no-referrer-when-downgrade",
+    // referrer: `https://www.trainline.fr/${referrer}`,
+    // referrerPolicy: "no-referrer-when-downgrade",
     body,
     method: "POST",
-    mode: "cors"
+    // mode: "cors"
   };
   if (cookie) {
     opts = Object.assign(opts, {
