@@ -173,16 +173,30 @@ const main = async () => {
         )
       )
     );
-
-    const search = await buildRequest(
-      "https://www.trainline.fr/api/v5_1/search",
-      `{\"search\":{\"departure_date\":\"${departureTime}\",\"systems\":[\"sncf\"],\"departure_station_id\":\"${departureStationId}\",\"arrival_station_id\":\"${arrivalStationId}\",\"passenger_ids\":[\"${passengerId}\"],\"card_ids\":[\"${cardId}\"]}}`,
-      {
-        ak_bmsc,
-        bm_sv
-      },
-      token
-    );
+    let search = null;
+    try {
+      search = await buildRequest(
+        "https://www.trainline.fr/api/v5_1/search",
+        `{\"search\":{\"departure_date\":\"${departureTime}\",\"systems\":[\"sncf\"],\"departure_station_id\":\"${departureStationId}\",\"arrival_station_id\":\"${arrivalStationId}\",\"passenger_ids\":[\"${passengerId}\"],\"card_ids\":[\"${cardId}\"]}}`,
+        {
+          ak_bmsc,
+          bm_sv
+        },
+        token
+      );
+    } catch (e) {
+      console.error(e);
+      if (err.name === "AbortError") {
+        console.error("Cancelled request is rejected");
+      }
+      if (e.type && e.type !== "system") {
+        console.error("Error originating from node-fetch with type:" + e.type);
+      }
+      if (e.type && e.type !== "system" && e.code && e.errno) {
+        console.error("Error thrown by Node.js core" + e);
+      }
+    }
+    
     console.info(
       chalk.bgBlue(`Search responsed with a status: ${search.status}`)
     );
