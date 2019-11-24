@@ -156,6 +156,8 @@ const main = async () => {
 
     const searchBody = await search.json();
 
+    console.info(searchBody)
+
     const trips = searchBody.trips;
 
     console.info(
