@@ -98,7 +98,7 @@ buildRequest = (url, body, cookie, token, extraHeaders) => {
   if (cookie) {
     opts = Object.assign(opts, {
       headers: Object.assign(opts.headers, {
-        cookie: stringifyCookie(cookie)
+        cookie: ''
       })
     });
   }
