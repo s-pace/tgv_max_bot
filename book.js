@@ -123,13 +123,13 @@ const main = async () => {
     const signInUrl = "https://www.trainline.fr/api/v5_1/account/signin";
     bodyLogin = `{\"id\":\"1\",\"email\":\"${email}\",\"password\":\"${password}\",\"facebook_id\":null,\"facebook_token\":null,\"google_code\":null,\"concur_auth_code\":null,\"concur_new_email\":null,\"concur_migration_type\":null,\"source\":null,\"correlation_key\":null,\"auth_token\":null,\"user_id\":null}`;
 
-    const resp2ndtoken = await buildRequest(signInUrl, bodyLogin);
+    const login = await buildRequest(signInUrl, bodyLogin);
     console.info(
-      chalk.bgBlue(`LogIn responsed with a status: ${resp2ndtoken.status}`)
+      chalk.bgBlue(`LogIn responsed with a status: ${login.status}`)
     );
-    const jsonSignin = await resp2ndtoken.json();
-    const token = jsonSignin.meta.token;
-    console.info('jsonSignin',jsonSignin)
+    const loginBody = await login.json();
+    const token = loginBody.meta.token;
+    console.info('loginBody',loginBody)
     let search = null;
     try {
       search = await buildRequest(
