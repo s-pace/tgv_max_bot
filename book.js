@@ -129,6 +129,7 @@ const main = async () => {
     );
     const jsonSignin = await resp2ndtoken.json();
     const token = jsonSignin.meta.token;
+    console.info('jsonSignin',jsonSignin)
     let search = null;
     try {
       search = await buildRequest(
@@ -156,8 +157,8 @@ const main = async () => {
 
     const searchBody = await search.json();
 
-    console.info("search.headers", search.headers);
-    console.info("searchBody", searchBody);
+    console.info("search.request", search.request);
+    // console.info("searchBody", searchBody);
 
     const trips = searchBody.trips;
 
