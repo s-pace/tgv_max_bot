@@ -116,7 +116,7 @@ buildRequest = (url, body, cookie, token, extraHeaders) => {
       })
     });
   }
-  // console.info(opts)
+  console.info(opts)
   return fetch(url, opts);
 };
 
