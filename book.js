@@ -120,16 +120,16 @@ formateTrip = t =>
 
 const main = async () => {
   try {
-    const signInUrl = "https://www.trainline.fr/api/v5_1/account/signin";
-    bodyLogin = `{\"id\":\"1\",\"email\":\"${email}\",\"password\":\"${password}\",\"facebook_id\":null,\"facebook_token\":null,\"google_code\":null,\"concur_auth_code\":null,\"concur_new_email\":null,\"concur_migration_type\":null,\"source\":null,\"correlation_key\":null,\"auth_token\":null,\"user_id\":null}`;
-
-    const login = await buildRequest(signInUrl, bodyLogin);
-    console.info(
-      chalk.bgBlue(`LogIn responsed with a status: ${login.status}`)
+    const sigin = await buildRequest(
+      "https://www.trainline.fr/api/v5_1/account/signin",
+      `{\"id\":\"1\",\"email\":\"${email}\",\"password\":\"${password}\",\"facebook_id\":null,\"facebook_token\":null,\"google_code\":null,\"concur_auth_code\":null,\"concur_new_email\":null,\"concur_migration_type\":null,\"source\":null,\"correlation_key\":null,\"auth_token\":null,\"user_id\":null}`
     );
-    const loginBody = await login.json();
-    const token = loginBody.meta.token;
-    console.info('loginBody',loginBody)
+    console.info(
+      chalk.bgBlue(`LogIn responsed with a status: ${sigin.status}`)
+    );
+    const siginBody = await sigin.json();
+    const token = siginBody.meta.token;
+    console.info("siginBody", siginBody);
     let search = null;
     try {
       search = await buildRequest(
