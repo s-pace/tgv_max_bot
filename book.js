@@ -91,7 +91,7 @@ buildRequest = (url, body, token, extraHeaders) => {
     // referrer: `https://www.trainline.fr/${referrer}`,
     // referrerPolicy: "no-referrer-when-downgrade",
     body,
-    method: "POST",
+    method: "POST"
     // mode: "cors"
   };
 
@@ -156,7 +156,8 @@ const main = async () => {
 
     const searchBody = await search.json();
 
-    console.info(searchBody)
+    console.info("search", search);
+    console.info("searchBody", searchBody);
 
     const trips = searchBody.trips;
 
