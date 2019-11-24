@@ -78,12 +78,12 @@ buildRequest = (url, body, token, extraHeaders) => {
       "cache-control": "no-cache",
       "content-type": "application/json; charset=UTF-8",
       pragma: "no-cache",
-      "x-ct-client-id": "761c18b4-14ec-44a7-bd33-61100dd7faab",
-      "x-ct-locale": "fr",
-      "x-ct-timestamp": "1574360965",
-      "x-ct-version": "eaa9fb2f01bb5bc32739c760673d38e7e9441b5f",
-      "x-not-a-bot": "i-am-human",
-      "x-requested-with": "XMLHttpRequest",
+      // "x-ct-client-id": "761c18b4-14ec-44a7-bd33-61100dd7faab",
+      // "x-ct-locale": "fr",
+      // "x-ct-timestamp": "1574360965",
+      // "x-ct-version": "eaa9fb2f01bb5bc32739c760673d38e7e9441b5f",
+      // "x-not-a-bot": "i-am-human",
+      // "x-requested-with": "XMLHttpRequest",
       "x-user-agent": "CaptainTrain/1554970536(web) (Ember 3.5.1)",
       "user-agent":
         "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Mobile Safari/537.36"
