@@ -75,7 +75,7 @@ buildRequest = (url, body, token, extraHeaders) => {
       "accept-encoding": "fr-FR,fr;q=0.8",
       accept: "application/json, text/javascript, */*; q=0.01",
       "accept-language": "fr-FR,fr;q=0.8",
-      "cache-control": "no-cache",
+      // "cache-control": "no-cache",
       "content-type": "application/json; charset=UTF-8",
       pragma: "no-cache",
       // "x-ct-client-id": "761c18b4-14ec-44a7-bd33-61100dd7faab",
