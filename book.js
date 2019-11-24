@@ -108,7 +108,7 @@ buildRequest = (url, body, token, extraHeaders) => {
       })
     });
   }
-  console.info("opts", opts);
+  // console.info("opts", opts);
   return fetch(url, opts);
 };
 
@@ -128,10 +128,9 @@ const main = async () => {
       chalk.bgBlue(`Signin responsed with a status: ${sigin.status}`)
     );
     const siginBody = await sigin.json();
-    console.info("siginBody.headers", siginBody.headers);
+    // console.info("siginBody.headers", siginBody.headers);
 
     const token = siginBody.meta.token;
-    console.info("siginBody", siginBody);
     let search = null;
     try {
       search = await buildRequest(
@@ -158,9 +157,6 @@ const main = async () => {
     console.info(chalk.bgBlue(`statusText: ${search.statusText}`));
 
     const searchBody = await search.json();
-
-    console.info("searchBody.headers", searchBody.headers);
-    // console.info("searchBody", searchBody);
 
     const trips = searchBody.trips;
 
