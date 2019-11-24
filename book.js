@@ -125,9 +125,11 @@ const main = async () => {
       `{\"id\":\"1\",\"email\":\"${email}\",\"password\":\"${password}\",\"facebook_id\":null,\"facebook_token\":null,\"google_code\":null,\"concur_auth_code\":null,\"concur_new_email\":null,\"concur_migration_type\":null,\"source\":null,\"correlation_key\":null,\"auth_token\":null,\"user_id\":null}`
     );
     console.info(
-      chalk.bgBlue(`LogIn responsed with a status: ${sigin.status}`)
+      chalk.bgBlue(`Signin responsed with a status: ${sigin.status}`)
     );
     const siginBody = await sigin.json();
+    console.info("siginBody.headers", siginBody.headers);
+
     const token = siginBody.meta.token;
     console.info("siginBody", siginBody);
     let search = null;
@@ -157,7 +159,7 @@ const main = async () => {
 
     const searchBody = await search.json();
 
-    console.info("search.request", search.request);
+    console.info("searchBody.headers", searchBody.headers);
     // console.info("searchBody", searchBody);
 
     const trips = searchBody.trips;
