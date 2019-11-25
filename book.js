@@ -31,6 +31,18 @@ const cardId = process.env.CARD_ID || 1833434;
 const arrivalStationId = toStationId(arrival);
 const departureStationId = toStationId(departure);
 const passengerId = process.env.PASSENGER_ID || 34135937;
+const catchFetchError = e => {
+  console.error(e);
+  if (err.name === "AbortError") {
+    console.error("Cancelled request is rejected");
+  }
+  if (e.type && e.type !== "system") {
+    console.error("Error originating from node-fetch with type:" + e.type);
+  }
+  if (e.type && e.type !== "system" && e.code && e.errno) {
+    console.error("Error thrown by Node.js core" + e);
+  }
+};
 
 console.info(chalk.cyan("Looking a train for " + email));
 
@@ -120,10 +132,16 @@ formateTrip = t =>
 
 const main = async () => {
   try {
-    const sigin = await buildRequest(
-      "https://www.trainline.fr/api/v5_1/account/signin",
-      `{\"id\":\"1\",\"email\":\"${email}\",\"password\":\"${password}\",\"facebook_id\":null,\"facebook_token\":null,\"google_code\":null,\"concur_auth_code\":null,\"concur_new_email\":null,\"concur_migration_type\":null,\"source\":null,\"correlation_key\":null,\"auth_token\":null,\"user_id\":null}`
-    );
+    let sigin = null;
+
+    try {
+      sigin = await buildRequest(
+        "https://www.trainline.fr/api/v5_1/account/signin",
+        `{\"id\":\"1\",\"email\":\"${email}\",\"password\":\"${password}\",\"facebook_id\":null,\"facebook_token\":null,\"google_code\":null,\"concur_auth_code\":null,\"concur_new_email\":null,\"concur_migration_type\":null,\"source\":null,\"correlation_key\":null,\"auth_token\":null,\"user_id\":null}`
+      );
+    } catch (e) {
+      catchFetchError(e);
+    }
     console.info(
       chalk.bgBlue(`Signin responsed with a status: ${sigin.status}`)
     );
@@ -139,16 +157,7 @@ const main = async () => {
         token
       );
     } catch (e) {
-      console.error(e);
-      if (err.name === "AbortError") {
-        console.error("Cancelled request is rejected");
-      }
-      if (e.type && e.type !== "system") {
-        console.error("Error originating from node-fetch with type:" + e.type);
-      }
-      if (e.type && e.type !== "system" && e.code && e.errno) {
-        console.error("Error thrown by Node.js core" + e);
-      }
+      catchFetchError(e);
     }
 
     console.info(
