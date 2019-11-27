@@ -46,6 +46,25 @@ const catchFetchError = e => {
 
 console.info(chalk.cyan("Looking a train for " + email));
 
+extractCookieString = r => {
+  console.log(chalk.yellow(r))
+  console.log(r)
+  console.log(r.substring(r.indexOf("=") + 1, r.indexOf(";")))
+  return !r ? null : r.substring(r.indexOf("=") + 1, r.indexOf(";"));
+}
+
+stringifyCookie = c =>
+  Object.keys(c).reduce((acc, e) => {
+    if (c[e]) {
+      if (acc) {
+        acc = acc + "; ";
+      }
+      return acc + e + "=" + c[e];
+    } else {
+      return acc;
+    }
+  }, "");
+
 formateDate = d => {
   if (!d) {
     console.error("date undefinned");
@@ -110,7 +129,7 @@ buildRequest = (url, body, cookie, token, extraHeaders) => {
   if (cookie) {
     opts = Object.assign(opts, {
       headers: Object.assign(opts.headers, {
-        Cookie: cookie
+        cookie: stringifyCookie(cookie)
       })
     });
   }
@@ -127,6 +146,11 @@ formateTrip = t =>
 
 const main = async () => {
   try {
+    const cookie = {}
+
+    let init = await buildRequest("https://www.trainline.fr/")
+    cookie.ak_bmsc = extractCookieString(init.headers.raw()["set-cookie"][0]);
+
     let sigin = null;
 
     try {
@@ -142,7 +166,11 @@ const main = async () => {
     );
 
     const siginBody = await sigin.json();
-    const cookie = sigin.headers.raw()["set-cookie"];
+    cookie.bm_sv = extractCookieString(sigin.headers.raw()["set-cookie"][0]);
+
+    cookie.mobile="no"
+    cookie.eu_business_user = "false"
+    cookie.eu_voucher_user = "false"
 
     const token = siginBody.meta.token;
     let search = null;
