@@ -46,20 +46,6 @@ const catchFetchError = e => {
 
 console.info(chalk.cyan("Looking a train for " + email));
 
-extractCookieString = r =>
-  !r ? null : r.substring(r.indexOf("=") + 1, r.indexOf(";"));
-
-stringifyCookie = c =>
-  Object.keys(c).reduce((acc, e) => {
-    if (c[e]) {
-      if (acc) {
-        acc = acc + "; ";
-      }
-      return acc + e + "=" + c[e];
-    } else {
-      return acc;
-    }
-  }, "");
 formateDate = d => {
   if (!d) {
     console.error("date undefinned");
@@ -78,7 +64,7 @@ formateDate = d => {
   };
   return new Intl.DateTimeFormat("en-US", dateFormatOptions).format(d);
 };
-buildRequest = (url, body, token, extraHeaders) => {
+buildRequest = (url, body, cookie, token, extraHeaders) => {
   const referrer = url.split("/").pop();
   let opts = {
     // credentials: "include",
@@ -120,7 +106,16 @@ buildRequest = (url, body, token, extraHeaders) => {
       })
     });
   }
-  // console.info("opts", opts);
+
+  if (cookie) {
+    opts = Object.assign(opts, {
+      headers: Object.assign(opts.headers, {
+        Cookie: cookie
+      })
+    });
+  }
+
+  console.info("opts", util.inspect(opts));
   return fetch(url, opts);
 };
 
@@ -145,8 +140,9 @@ const main = async () => {
     console.info(
       chalk.bgBlue(`Signin responsed with a status: ${sigin.status}`)
     );
+
     const siginBody = await sigin.json();
-    // console.info("siginBody.headers", siginBody.headers);
+    const cookie = sigin.headers.raw()["set-cookie"];
 
     const token = siginBody.meta.token;
     let search = null;
@@ -154,6 +150,7 @@ const main = async () => {
       search = await buildRequest(
         "https://www.trainline.fr/api/v5_1/search",
         `{\"search\":{\"departure_date\":\"${departureTime}\",\"systems\":[\"sncf\"],\"departure_station_id\":\"${departureStationId}\",\"arrival_station_id\":\"${arrivalStationId}\",\"passenger_ids\":[\"${passengerId}\"],\"card_ids\":[\"${cardId}\"]}}`,
+        cookie,
         token
       );
     } catch (e) {
@@ -189,6 +186,7 @@ const main = async () => {
       const book = await buildRequest(
         "https://www.trainline.fr/api/v5_1/book",
         `{\"book\":{\"search_id\":\"${folderToBook.search_id}\",\"outward_folder_id\":\"${folderToBook.id}\",\"options\":{\"${tripToBook.segment_ids[0]}\":{\"comfort_class\":\"pao.default\",\"seat\":\"aisle\"}}}}`,
+        cookie,
         token
       );
 
@@ -203,6 +201,7 @@ const main = async () => {
         const payment = await buildRequest(
           "https://www.trainline.fr/api/v5_1/payments",
           `{\"payment\":{\"mean\":\"free\",\"cents\":0,\"currency\":\"EUR\",\"holder\":null,\"number\":null,\"expiration_month\":null,\"expiration_year\":null,\"cvv_code\":null,\"nonce\":null,\"paypal_email\":null,\"paypal_first_name\":null,\"paypal_last_name\":null,\"paypal_country\":null,\"device_data\":null,\"status\":null,\"verification_form\":null,\"verification_url\":null,\"can_save_payment_card\":false,\"is_new_customer\":false,\"digitink_value\":null,\"card_form_session\":null,\"pnr_ids\":[\"${pnrID}\"],\"order_id\":null,\"payment_card_id\":null,\"wants_all_marketing\":false}}`,
+          cookie,
           token
         );
 
@@ -216,6 +215,7 @@ const main = async () => {
           const confirmation = await buildRequest(
             `https://www.trainline.fr/api/v5_1/payments/${paymentID}/confirm`,
             `{\"payment\":{\"mean\":\"free\",\"cents\":0,\"currency\":\"EUR\",\"holder\":null,\"number\":null,\"expiration_month\":null,\"expiration_year\":null,\"cvv_code\":null,\"nonce\":null,\"paypal_email\":null,\"paypal_first_name\":null,\"paypal_last_name\":null,\"paypal_country\":null,\"device_data\":null,\"status\":null,\"verification_form\":null,\"verification_url\":null,\"can_save_payment_card\":false,\"is_new_customer\":false,\"digitink_value\":null,\"card_form_session\":null,\"pnr_ids\":[\"${pnrID}\"],\"order_id\":null,\"payment_card_id\":null,\"wants_all_marketing\":false}}`,
+            cookie,
             token
           );
           console.info(
