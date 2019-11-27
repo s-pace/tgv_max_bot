@@ -46,12 +46,8 @@ const catchFetchError = e => {
 
 console.info(chalk.cyan("Looking a train for " + email));
 
-extractCookieString = r => {
-  console.log(chalk.yellow(r))
-  console.log(r)
-  console.log(r.substring(r.indexOf("=") + 1, r.indexOf(";")))
-  return !r ? null : r.substring(r.indexOf("=") + 1, r.indexOf(";"));
-}
+extractCookieString = r =>
+  !r ? null : r.substring(r.indexOf("=") + 1, r.indexOf(";"));
 
 stringifyCookie = c =>
   Object.keys(c).reduce((acc, e) => {
@@ -146,9 +142,9 @@ formateTrip = t =>
 
 const main = async () => {
   try {
-    const cookie = {}
+    const cookie = {};
 
-    let init = await buildRequest("https://www.trainline.fr/")
+    const init = await buildRequest("https://www.trainline.fr/");
     cookie.ak_bmsc = extractCookieString(init.headers.raw()["set-cookie"][0]);
 
     let sigin = null;
@@ -168,9 +164,9 @@ const main = async () => {
     const siginBody = await sigin.json();
     cookie.bm_sv = extractCookieString(sigin.headers.raw()["set-cookie"][0]);
 
-    cookie.mobile="no"
-    cookie.eu_business_user = "false"
-    cookie.eu_voucher_user = "false"
+    cookie.mobile = "no";
+    cookie.eu_business_user = "false";
+    cookie.eu_voucher_user = "false";
 
     const token = siginBody.meta.token;
     let search = null;
@@ -285,7 +281,7 @@ const main = async () => {
               html: text.split("\n").join("\n<br>\n") // html body
             };
             // send mail with defined transport object
-            let info = await transporter.sendMail(mailOptions);
+            const info = await transporter.sendMail(mailOptions);
             console.info(chalk.magenta(`Message sent: ${info.messageId}`));
           } else {
             console.info(
