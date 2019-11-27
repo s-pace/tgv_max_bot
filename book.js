@@ -146,13 +146,13 @@ const main = async () => {
   try {
     const cookie = {};
 
-    const init = await buildRequest("https://www.trainline.fr/");
-    console.info(
-      chalk.bgBlue(`Init responsed with a status: ${init.status}`)
-    );
-    if (init.headers.raw()["set-cookie"]) {
-      cookie.ak_bmsc = extractCookieString(init.headers.raw()["set-cookie"][0]);
-    }
+    // const init = await buildRequest("https://www.trainline.fr/");
+    // console.info(
+    //   chalk.bgBlue(`Init responsed with a status: ${init.status}`)
+    // );
+    // if (init.headers.raw()["set-cookie"]) {
+    //   cookie.ak_bmsc = extractCookieString(init.headers.raw()["set-cookie"][0]);
+    // }
 
     let sigin = null;
 
