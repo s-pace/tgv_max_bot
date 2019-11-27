@@ -122,13 +122,17 @@ buildRequest = (url, body, cookie, token, extraHeaders) => {
     });
   }
 
-  if (cookie) {
-    opts = Object.assign(opts, {
-      headers: Object.assign(opts.headers, {
-        cookie: stringifyCookie(cookie)
-      })
-    });
-  }
+  // if (cookie) {
+  //   opts = Object.assign(opts, {
+  //     headers: Object.assign(opts.headers, {
+  //       cookie: stringifyCookie(cookie)
+  //     })
+  //   });
+  // }
+
+  console.log(chalk.blue(cookie))
+
+  opts.headers.cookie=`eu_business_user=false; eu_voucher_user=false; ak_bmsc=9A0C1FE47A6F2E27FE8109140B41AC4F58DD731594260000A227DE5DAA996F7D~plebpRXfz8iqSCZWx7l8uI6Kl10sGacwYx5o8ipzNNGEhOJHotzeX7ogBCkJ/lYuHi5Cd+L0RgYjkcra1+8XRp84Ocvs8rOfzCPs2UBXqr5D4TslpZAh9rG/fcli7o524JmnoUf0qC7AkzYFxHD08L69HdGwQYdHNuvtbREsu97w6YXEOps6evCGR33jLrywLBz+SVaPLzhhU7R3d/BE7Fj1HtYgVFGN6VLGvSc940MMM=; mobile=no; bm_sv=0F9B12B7D58F841C4E53533A19BEAFA6~ssfd+PR2g+SR0RSYjnTeFRM63AO5kUhR9DvuzDAxKgZM2e5CrBJ4ylKhL08LFfSFvncyMxlIBi5NlS5UUO9fOSt7K8O2Sz7d9nlCHeFlcg6O4SgUga5WEE7Xz1EDbtk8j2AaA5B3kaymkF/Nlg8fTv7GzI9a2sefAM/b0tWhNsk=`
 
   console.info("opts", util.inspect(opts));
   return fetch(url, opts);
