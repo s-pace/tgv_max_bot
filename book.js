@@ -169,7 +169,8 @@ const main = async () => {
     );
 
     const siginBody = await sigin.json();
-    cookie.bm_sv = extractCookieString(sigin.headers.raw()["set-cookie"][0]);
+    // cookie.bm_sv = extractCookieString(sigin.headers.raw()["set-cookie"][0]);
+    console.log("headers.raw", util.inspect(sigin.headers.raw()))
 
     cookie.mobile = "no";
     cookie.eu_business_user = "false";
